@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .company-name {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-top: 5px;
+    }
+
+    .tab-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 15px 20px;
+      border: none;
+      border-radius: 12px 12px 0 0;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .tab.monday {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .tab.monday.active {
+      background: white;
+      color: #34a853;
+    }
+
+    .tab.friday {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .tab.friday.active {
+      background: white;
+      color: #ea4335;
+    }
+
+    .tab.scoreboard {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .tab.scoreboard.active {
+      background: white;
+      color: #1a73e8;
+    }
+
+    .card {
+      background: white;
+      border-radius: 0 0 16px 16px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+
+    .form-section {
+      display: none;
+    }
+
+    .form-section.active {
+      display: block;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .section-icon {
+      font-size: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: 500;
+      color: #444;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .required::after {
+      content: " *";
+      color: #ea4335;
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.3s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .priority-card {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-left: 4px solid;
+    }
+
+    .priority-card.strategic {
+      border-left-color: #34a853;
+    }
+
+    .priority-card.operational {
+      border-left-color: #fbbc04;
+    }
+
+    .priority-card.admin {
+      border-left-color: #4285f4;
+    }
+
+    .priority-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .status-option {
+      flex: 1;
+      min-width: 100px;
+    }
+
+    .status-option input[type="radio"] {
+      display: none;
+    }
+
+    .status-option label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .status-option input[type="radio"]:checked + label.done {
+      background: #e6f4ea;
+      border-color: #34a853;
+      color: #34a853;
+    }
+
+    .status-option input[type="radio"]:checked + label.partial {
+      background: #fef7e0;
+      border-color: #fbbc04;
+      color: #f9a825;
+    }
+
+    .status-option input[type="radio"]:checked + label.missed {
+      background: #fce8e6;
+      border-color: #ea4335;
+      color: #ea4335;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .submit-btn.monday {
+      background: linear-gradient(135deg, #34a853 0%, #0f9d58 100%);
+      color: white;
+    }
+
+    .submit-btn.friday {
+      background: linear-gradient(135deg, #ea4335 0%, #c62828 100%);
+      color: white;
+    }
+
+    .submit-btn.scoreboard {
+      background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%);
+      color: white;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .message {
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .message.success {
+      background: #e6f4ea;
+      color: #137333;
+      display: flex;
+    }
+
+    .message.error {
+      background: #fce8e6;
+      color: #c5221f;
+      display: flex;
+    }
+
+    .week-display {
+      background: #f0f4ff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      font-weight: 500;
+      color: #1a73e8;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .loading.active {
+      display: block;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f0f0f0;
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .scoreboard-item {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+    }
+
+    .scoreboard-item h4 {
+      font-size: 1rem;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .traffic-lights {
+      display: flex;
+      gap: 15px;
+    }
+
+    .traffic-light {
+      flex: 1;
+    }
+
+    .traffic-light input[type="radio"] {
+      display: none;
+    }
+
+    .traffic-light label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .traffic-light label span.icon {
+      font-size: 2rem;
+      margin-bottom: 5px;
+    }
+
+    .traffic-light label span.text {
+      font-size: 0.75rem;
+      color: #666;
+    }
+
+    .traffic-light input[type="radio"]:checked + label {
+      transform: scale(1.05);
+    }
+
+    .traffic-light.green input[type="radio"]:checked + label {
+      background: #e6f4ea;
+      border-color: #34a853;
+    }
+
+    .traffic-light.yellow input[type="radio"]:checked + label {
+      background: #fef7e0;
+      border-color: #fbbc04;
+    }
+
+    .traffic-light.red input[type="radio"]:checked + label {
+      background: #fce8e6;
+      border-color: #ea4335;
+    }
+
+    @media (max-width: 600px) {
+      .header h1 {
+        font-size: 1.8rem;
+      }
+
+      .tab {
+        padding: 12px 10px;
+        font-size: 0.85rem;
+      }
+
+      .card {
+        padding: 20px;
+      }
+
+      .traffic-lights {
+        flex-direction: column;
+      }
+
+      .status-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>The Pulse System</h1>
+      <p>Weekly Accountability Made Simple</p>
+      <div class="company-name" id="companyName"></div>
+    </div>
+
+    <div class="tab-container">
+      <button class="tab monday active" onclick="showSection('monday')">
+        <span>Monday</span>
+        <span>Promise</span>
+      </button>
+      <button class="tab friday" onclick="showSection('friday')">
+        <span>Friday</span>
+        <span>Proof</span>
+      </button>
+      <button class="tab scoreboard" onclick="showSection('scoreboard')">
+        <span>Update</span>
+        <span>Scoreboard</span>
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="loading active" id="loadingState">
+        <div class="spinner"></div>
+        <p>Loading form data...</p>
+      </div>
+
+      <!-- Monday Promise Form -->
+      <div class="form-section" id="mondaySection">
+        <div class="section-header">
+          <span class="section-icon">&#x1F4DD;</span>
+          <span class="section-title">Monday Morning Promise</span>
+        </div>
+
+        <div id="mondayMessage" class="message"></div>
+
+        <div class="week-display">
+          <span>&#x1F4C5;</span>
+          <span>Week <span id="mondayWeek"></span></span>
+        </div>
+
+        <form id="mondayForm" onsubmit="submitMonday(event)">
+          <div class="form-group">
+            <label class="required">Your Name</label>
+            <select id="mondayName" required>
+              <option value="">Select your name...</option>
+            </select>
+          </div>
+
+          <div class="priority-card strategic">
+            <h3><span>&#x1F3AF;</span> Priority 1: Strategic (Must align with Q Strategy)</h3>
+            <div class="form-group">
+              <label class="required">What will you accomplish?</label>
+              <textarea id="priority1" placeholder="Describe your #1 priority for this week..." required></textarea>
+            </div>
+            <div class="form-group">
+              <label class="required">Linked Strategic Goal</label>
+              <select id="linkedGoal" required>
+                <option value="">Select the goal this supports...</option>
+              </select>
+              <p class="hint">This must directly support one of the quarter's strategic goals</p>
+            </div>
+          </div>
+
+          <div class="priority-card operational">
+            <h3><span>&#x2699;&#xFE0F;</span> Priority 2: Operational</h3>
+            <div class="form-group">
+              <label class="required">What operational task will you complete?</label>
+              <textarea id="priority2" placeholder="Day-to-day operational needs..." required></textarea>
+            </div>
+          </div>
+
+          <div class="priority-card admin">
+            <h3><span>&#x1F465;</span> Priority 3: Team / Admin</h3>
+            <div class="form-group">
+              <label class="required">Team, hiring, or administrative task</label>
+              <textarea id="priority3" placeholder="Team development, hiring, admin tasks..." required></textarea>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Additional Notes (Optional)</label>
+            <textarea id="mondayNotes" placeholder="Any context or notes for your manager..."></textarea>
+          </div>
+
+          <button type="submit" class="submit-btn monday" id="mondaySubmit">
+            <span>&#x2705;</span>
+            <span>Submit Monday Promise</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Friday Proof Form -->
+      <div class="form-section" id="fridaySection">
+        <div class="section-header">
+          <span class="section-icon">&#x2705;</span>
+          <span class="section-title">Friday Afternoon Proof</span>
+        </div>
+
+        <div id="fridayMessage" class="message"></div>
+
+        <div class="week-display">
+          <span>&#x1F4C5;</span>
+          <span>Week <span id="fridayWeek"></span></span>
+        </div>
+
+        <form id="fridayForm" onsubmit="submitFriday(event)">
+          <div class="form-group">
+            <label class="required">Your Name</label>
+            <select id="fridayName" required>
+              <option value="">Select your name...</option>
+            </select>
+          </div>
+
+          <div class="priority-card strategic">
+            <h3><span>&#x1F3AF;</span> Priority 1: Strategic</h3>
+            <div class="form-group">
+              <label class="required">Status</label>
+              <div class="status-group">
+                <div class="status-option">
+                  <input type="radio" id="p1done" name="priority1Status" value="DONE" required>
+                  <label for="p1done" class="done">&#x2705; DONE</label>
+                </div>
+                <div class="status-option">
+                  <input type="radio" id="p1partial" name="priority1Status" value="PARTIAL">
+                  <label for="p1partial" class="partial">&#x1F536; PARTIAL</label>
+                </div>
+                <div class="status-option">
+                  <input type="radio" id="p1missed" name="priority1Status" value="MISSED">
+                  <label for="p1missed" class="missed">&#x274C; MISSED</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="required">Proof / Notes</label>
+              <textarea id="priority1Proof" placeholder="Link to deliverable, or explanation..." required></textarea>
+            </div>
+          </div>
+
+          <div class="priority-card operational">
+            <h3><span>&#x2699;&#xFE0F;</span> Priority 2: Operational</h3>
+            <div class="form-group">
+              <label class="required">Status</label>
+              <div class="status-group">
+                <div class="status-option">
+                  <input type="radio" id="p2done" name="priority2Status" value="DONE" required>
+                  <label for="p2done" class="done">&#x2705; DONE</label>
+                </div>
+                <div class="status-option">
+                  <input type="radio" id="p2partial" name="priority2Status" value="PARTIAL">
+                  <label for="p2partial" class="partial">&#x1F536; PARTIAL</label>
+                </div>
+                <div class="status-option">
+                  <input type="radio" id="p2missed" name="priority2Status" value="MISSED">
+                  <label for="p2missed" class="missed">&#x274C; MISSED</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="required">Proof / Notes</label>
+              <textarea id="priority2Proof" placeholder="Link to deliverable, or explanation..." required></textarea>
+            </div>
+          </div>
+
+          <div class="priority-card admin">
+            <h3><span>&#x1F465;</span> Priority 3: Team / Admin</h3>
+            <div class="form-group">
+              <label class="required">Status</label>
+              <div class="status-group">
+                <div class="status-option">
+                  <input type="radio" id="p3done" name="priority3Status" value="DONE" required>
+                  <label for="p3done" class="done">&#x2705; DONE</label>
+                </div>
+                <div class="status-option">
+                  <input type="radio" id="p3partial" name="priority3Status" value="PARTIAL">
+                  <label for="p3partial" class="partial">&#x1F536; PARTIAL</label>
+                </div>
+                <div class="status-option">
+                  <input type="radio" id="p3missed" name="priority3Status" value="MISSED">
+                  <label for="p3missed" class="missed">&#x274C; MISSED</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="required">Proof / Notes</label>
+              <textarea id="priority3Proof" placeholder="Link to deliverable, or explanation..." required></textarea>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Blockers / Issues Encountered</label>
+            <textarea id="blockers" placeholder="What got in your way this week?"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Recovery Plan (if any tasks missed)</label>
+            <textarea id="recoveryPlan" placeholder="How will you catch up next week?"></textarea>
+          </div>
+
+          <button type="submit" class="submit-btn friday" id="fridaySubmit">
+            <span>&#x1F4E4;</span>
+            <span>Submit Friday Proof</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Scoreboard Update Form -->
+      <div class="form-section" id="scoreboardSection">
+        <div class="section-header">
+          <span class="section-icon">&#x1F4CA;</span>
+          <span class="section-title">Update Scoreboard</span>
+        </div>
+
+        <div id="scoreboardMessage" class="message"></div>
+
+        <div class="week-display">
+          <span>&#x1F4C5;</span>
+          <span>Week <span id="scoreboardWeek"></span></span>
+        </div>
+
+        <form id="scoreboardForm" onsubmit="submitScoreboard(event)">
+          <div class="form-group">
+            <label class="required">Select Goal to Update</label>
+            <select id="scoreboardGoal" required>
+              <option value="">Select a strategic goal...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="required">Current Status</label>
+            <div class="traffic-lights">
+              <div class="traffic-light green">
+                <input type="radio" id="statusGreen" name="trafficStatus" value="&#x1F7E2;" required>
+                <label for="statusGreen">
+                  <span class="icon">&#x1F7E2;</span>
+                  <span class="text">On Track</span>
+                </label>
+              </div>
+              <div class="traffic-light yellow">
+                <input type="radio" id="statusYellow" name="trafficStatus" value="&#x1F7E1;">
+                <label for="statusYellow">
+                  <span class="icon">&#x1F7E1;</span>
+                  <span class="text">At Risk</span>
+                </label>
+              </div>
+              <div class="traffic-light red">
+                <input type="radio" id="statusRed" name="trafficStatus" value="&#x1F534;">
+                <label for="statusRed">
+                  <span class="icon">&#x1F534;</span>
+                  <span class="text">Off Track</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn scoreboard" id="scoreboardSubmit">
+            <span>&#x1F4CA;</span>
+            <span>Update Scoreboard</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let formData = null;
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      loadFormData();
+    });
+
+    function loadFormData() {
+      google.script.run
+        .withSuccessHandler(function(data) {
+          formData = data;
+          populateForm(data);
+          document.getElementById('loadingState').classList.remove('active');
+          document.getElementById('mondaySection').classList.add('active');
+        })
+        .withFailureHandler(function(error) {
+          console.error('Error loading form data:', error);
+          document.getElementById('loadingState').innerHTML =
+            '<p style="color: #ea4335;">Error loading form. Please refresh the page.</p>';
+        })
+        .getFormData();
+    }
+
+    function populateForm(data) {
+      // Set company name
+      document.getElementById('companyName').textContent = data.companyName;
+
+      // Populate team member dropdowns
+      const memberSelects = ['mondayName', 'fridayName'];
+      memberSelects.forEach(function(selectId) {
+        const select = document.getElementById(selectId);
+        data.teamMembers.forEach(function(member) {
+          const option = document.createElement('option');
+          option.value = member;
+          option.textContent = member;
+          select.appendChild(option);
+        });
+      });
+
+      // Populate goal dropdowns
+      const goalSelects = ['linkedGoal', 'scoreboardGoal'];
+      goalSelects.forEach(function(selectId) {
+        const select = document.getElementById(selectId);
+        data.strategicGoals.forEach(function(goal) {
+          const option = document.createElement('option');
+          option.value = goal;
+          option.textContent = goal;
+          select.appendChild(option);
+        });
+      });
+
+      // Set week numbers
+      document.getElementById('mondayWeek').textContent = data.currentWeek;
+      document.getElementById('fridayWeek').textContent = data.currentWeek;
+      document.getElementById('scoreboardWeek').textContent = data.currentWeek;
+    }
+
+    function showSection(section) {
+      // Update tabs
+      document.querySelectorAll('.tab').forEach(function(tab) {
+        tab.classList.remove('active');
+      });
+      document.querySelector('.tab.' + section).classList.add('active');
+
+      // Update sections
+      document.querySelectorAll('.form-section').forEach(function(s) {
+        s.classList.remove('active');
+      });
+      document.getElementById(section + 'Section').classList.add('active');
+    }
+
+    function showMessage(elementId, message, isSuccess) {
+      const el = document.getElementById(elementId);
+      el.className = 'message ' + (isSuccess ? 'success' : 'error');
+      el.innerHTML = (isSuccess ? '&#x2705; ' : '&#x274C; ') + message;
+      el.style.display = 'flex';
+    }
+
+    function submitMonday(e) {
+      e.preventDefault();
+      const btn = document.getElementById('mondaySubmit');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner" style="width:20px;height:20px;border-width:2px;margin:0;"></span> Submitting...';
+
+      const data = {
+        week: formData.currentWeek,
+        name: document.getElementById('mondayName').value,
+        priority1: document.getElementById('priority1').value,
+        linkedGoal: document.getElementById('linkedGoal').value,
+        priority2: document.getElementById('priority2').value,
+        priority3: document.getElementById('priority3').value,
+        notes: document.getElementById('mondayNotes').value
+      };
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>&#x2705;</span><span>Submit Monday Promise</span>';
+          showMessage('mondayMessage', result.message, result.success);
+          if (result.success) {
+            document.getElementById('mondayForm').reset();
+          }
+        })
+        .withFailureHandler(function(error) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>&#x2705;</span><span>Submit Monday Promise</span>';
+          showMessage('mondayMessage', 'Error: ' + error.message, false);
+        })
+        .submitMondayPromise(data);
+    }
+
+    function submitFriday(e) {
+      e.preventDefault();
+      const btn = document.getElementById('fridaySubmit');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner" style="width:20px;height:20px;border-width:2px;margin:0;"></span> Submitting...';
+
+      const data = {
+        week: formData.currentWeek,
+        name: document.getElementById('fridayName').value,
+        priority1Status: document.querySelector('input[name="priority1Status"]:checked').value,
+        priority1Proof: document.getElementById('priority1Proof').value,
+        priority2Status: document.querySelector('input[name="priority2Status"]:checked').value,
+        priority2Proof: document.getElementById('priority2Proof').value,
+        priority3Status: document.querySelector('input[name="priority3Status"]:checked').value,
+        priority3Proof: document.getElementById('priority3Proof').value,
+        blockers: document.getElementById('blockers').value,
+        recoveryPlan: document.getElementById('recoveryPlan').value
+      };
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>&#x1F4E4;</span><span>Submit Friday Proof</span>';
+          showMessage('fridayMessage', result.message, result.success);
+          if (result.success) {
+            document.getElementById('fridayForm').reset();
+          }
+        })
+        .withFailureHandler(function(error) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>&#x1F4E4;</span><span>Submit Friday Proof</span>';
+          showMessage('fridayMessage', 'Error: ' + error.message, false);
+        })
+        .submitFridayProof(data);
+    }
+
+    function submitScoreboard(e) {
+      e.preventDefault();
+      const btn = document.getElementById('scoreboardSubmit');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner" style="width:20px;height:20px;border-width:2px;margin:0;"></span> Updating...';
+
+      const data = {
+        week: formData.currentWeek,
+        goal: document.getElementById('scoreboardGoal').value,
+        status: document.querySelector('input[name="trafficStatus"]:checked').value
+      };
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>&#x1F4CA;</span><span>Update Scoreboard</span>';
+          showMessage('scoreboardMessage', result.message, result.success);
+          if (result.success) {
+            document.getElementById('scoreboardForm').reset();
+          }
+        })
+        .withFailureHandler(function(error) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>&#x1F4CA;</span><span>Update Scoreboard</span>';
+          showMessage('scoreboardMessage', 'Error: ' + error.message, false);
+        })
+        .updateScoreboard(data);
+    }
+  </script>
+</body>
+</html>
