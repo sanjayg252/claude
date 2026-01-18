@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Bucket Presentation - Financial Planning Made Simple</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Title Screen */
+        .title-screen {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 1s ease;
+            z-index: 100;
+        }
+
+        .title-screen.active {
+            opacity: 1;
+        }
+
+        .title-screen h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .title-screen .subtitle {
+            font-size: 1.5rem;
+            color: rgba(255,255,255,0.7);
+            font-weight: 300;
+        }
+
+        /* Main Canvas Area */
+        .canvas-area {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .canvas-area.active {
+            opacity: 1;
+        }
+
+        /* The Bucket */
+        .bucket-container {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 350px;
+        }
+
+        .bucket {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 220px;
+            height: 280px;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .bucket.visible {
+            opacity: 1;
+        }
+
+        .bucket-body {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 240px;
+            background: linear-gradient(180deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+            border: 3px solid #667eea;
+            border-radius: 0 0 30px 30px;
+            clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
+        }
+
+        .bucket-rim {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 220px;
+            height: 25px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px 10px 0 0;
+        }
+
+        .bucket-handle {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140px;
+            height: 50px;
+            border: 4px solid #667eea;
+            border-bottom: none;
+            border-radius: 70px 70px 0 0;
+        }
+
+        /* Liquid inside bucket */
+        .bucket-liquid {
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 0;
+            background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 0 0 25px 25px;
+            clip-path: polygon(5% 0%, 95% 0%, 100% 100%, 0% 100%);
+            transition: height 1.5s ease;
+            opacity: 0.8;
+        }
+
+        .bucket-liquid.fill {
+            height: 150px;
+        }
+
+        /* Labels */
+        .label {
+            position: absolute;
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+            font-size: 0.9rem;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+            max-width: 200px;
+            text-align: center;
+        }
+
+        .label.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .label-inside {
+            left: calc(50% + 180px);
+            top: 50%;
+            transform: translate(0, -50%);
+        }
+
+        .label-inside.visible {
+            transform: translate(0, -50%);
+        }
+
+        .label-outside {
+            right: calc(50% + 180px);
+            top: 50%;
+            transform: translate(0, -50%);
+        }
+
+        .label-outside.visible {
+            transform: translate(0, -50%);
+        }
+
+        /* Assets floating */
+        .asset {
+            position: absolute;
+            padding: 8px 14px;
+            background: rgba(79, 172, 254, 0.2);
+            border: 1px solid rgba(79, 172, 254, 0.5);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: all 0.5s ease;
+            white-space: nowrap;
+        }
+
+        .asset.visible {
+            opacity: 1;
+        }
+
+        .asset.outside {
+            background: rgba(255, 107, 107, 0.2);
+            border-color: rgba(255, 107, 107, 0.5);
+        }
+
+        /* Inside bucket assets */
+        .asset-cash { left: calc(50% - 40px); top: calc(50% + 60px); }
+        .asset-isa { left: calc(50% + 10px); top: calc(50% + 90px); }
+        .asset-shares { left: calc(50% - 60px); top: calc(50% + 120px); }
+        .asset-savings { left: calc(50% + 20px); top: calc(50% + 140px); }
+
+        /* Outside bucket assets */
+        .asset-home { left: calc(50% - 280px); top: calc(50% - 20px); }
+        .asset-pension { left: calc(50% - 300px); top: calc(50% + 30px); }
+        .asset-business { left: calc(50% - 260px); top: calc(50% + 80px); }
+
+        /* Inflows */
+        .inflow-container {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .inflow-container.visible {
+            opacity: 1;
+        }
+
+        .inflow-label {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 5px;
+        }
+
+        .inflow-items {
+            display: flex;
+            gap: 15px;
+        }
+
+        .inflow-item {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.5s ease;
+        }
+
+        .inflow-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Arrow pointing down */
+        .inflow-arrow {
+            width: 3px;
+            height: 0;
+            background: linear-gradient(180deg, #38ef7d, #667eea);
+            margin-top: 10px;
+            transition: height 0.8s ease;
+        }
+
+        .inflow-arrow.visible {
+            height: 80px;
+        }
+
+        /* Taps/Outflows */
+        .taps-container {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .taps-container.visible {
+            opacity: 1;
+        }
+
+        .outflow-arrow {
+            width: 3px;
+            height: 0;
+            background: linear-gradient(180deg, #667eea, #ff6b6b);
+            transition: height 0.8s ease;
+        }
+
+        .outflow-arrow.visible {
+            height: 40px;
+        }
+
+        .taps-label {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .taps {
+            display: flex;
+            gap: 12px;
+        }
+
+        .tap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .tap.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .tap-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .tap-1 .tap-icon { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .tap-2 .tap-icon { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .tap-3 .tap-icon { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .tap-4 .tap-icon { background: linear-gradient(135deg, #fa709a, #fee140); }
+
+        .tap-label {
+            font-size: 0.7rem;
+            text-align: center;
+            max-width: 80px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* Narrator Box */
+        .narrator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            max-width: 800px;
+            padding: 20px 30px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 200;
+        }
+
+        .narrator.visible {
+            opacity: 1;
+        }
+
+        .narrator-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.95);
+        }
+
+        .narrator-text .highlight {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0;
+            transition: width 0.3s linear;
+            z-index: 300;
+        }
+
+        /* Controls */
+        .controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 300;
+        }
+
+        .control-btn {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .control-btn.primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+        }
+
+        /* Timer display */
+        .timer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 1rem;
+            color: rgba(255,255,255,0.6);
+            font-variant-numeric: tabular-nums;
+            z-index: 300;
+        }
+
+        /* Key insight callout */
+        .insight-callout {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            padding: 40px 60px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 2px solid rgba(102, 126, 234, 0.5);
+            text-align: center;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.9);
+            transition: all 0.8s ease;
+            z-index: 150;
+            max-width: 600px;
+        }
+
+        .insight-callout.visible {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .insight-callout h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .insight-callout p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.9);
+        }
+
+        /* Client types */
+        .client-types {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            gap: 30px;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            z-index: 150;
+        }
+
+        .client-types.visible {
+            opacity: 1;
+        }
+
+        .client-type {
+            padding: 30px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 2px solid rgba(255,255,255,0.1);
+            text-align: center;
+            width: 200px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .client-type.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .client-type.not-enough {
+            border-color: rgba(255, 107, 107, 0.5);
+        }
+
+        .client-type.too-much {
+            border-color: rgba(56, 239, 125, 0.5);
+        }
+
+        .client-type.just-right {
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .client-type-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .client-type h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .client-type p {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.4;
+        }
+
+        /* Final CTA */
+        .final-screen {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 1s ease;
+            z-index: 100;
+        }
+
+        .final-screen.active {
+            opacity: 1;
+        }
+
+        .final-screen h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .final-screen p {
+            font-size: 1.3rem;
+            color: rgba(255,255,255,0.8);
+            max-width: 600px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .final-tagline {
+            margin-top: 30px;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.6);
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="progress-bar" id="progressBar"></div>
+        <div class="timer" id="timer">0:00</div>
+
+        <div class="controls">
+            <button class="control-btn" id="restartBtn">Restart</button>
+            <button class="control-btn primary" id="playBtn">Play</button>
+        </div>
+
+        <!-- Title Screen -->
+        <div class="title-screen active" id="titleScreen">
+            <h1>The Bucket</h1>
+            <p class="subtitle">A Simple Way to Understand Your Financial Future</p>
+        </div>
+
+        <!-- Main Canvas -->
+        <div class="canvas-area" id="canvasArea">
+            <!-- The Bucket -->
+            <div class="bucket-container">
+                <div class="bucket" id="bucket">
+                    <div class="bucket-handle"></div>
+                    <div class="bucket-rim"></div>
+                    <div class="bucket-body"></div>
+                    <div class="bucket-liquid" id="bucketLiquid"></div>
+                </div>
+            </div>
+
+            <!-- Labels -->
+            <div class="label label-inside" id="labelInside">
+                <strong>Inside Your Bucket</strong><br>
+                <small style="color: rgba(255,255,255,0.7)">Liquid money you can access in 7-10 days</small>
+            </div>
+
+            <div class="label label-outside" id="labelOutside">
+                <strong>Outside Your Bucket</strong><br>
+                <small style="color: rgba(255,255,255,0.7)">Assets you can't spend directly</small>
+            </div>
+
+            <!-- Inside Assets -->
+            <div class="asset asset-cash" id="assetCash">Cash</div>
+            <div class="asset asset-isa" id="assetIsa">ISAs</div>
+            <div class="asset asset-shares" id="assetShares">Shares</div>
+            <div class="asset asset-savings" id="assetSavings">Savings</div>
+
+            <!-- Outside Assets -->
+            <div class="asset outside asset-home" id="assetHome">Your Home</div>
+            <div class="asset outside asset-pension" id="assetPension">Pension Funds</div>
+            <div class="asset outside asset-business" id="assetBusiness">Business Value</div>
+
+            <!-- Inflows -->
+            <div class="inflow-container" id="inflowContainer">
+                <div class="inflow-label">Money Coming In</div>
+                <div class="inflow-items">
+                    <div class="inflow-item" id="inflowSalary">Salary</div>
+                    <div class="inflow-item" id="inflowDividends">Dividends</div>
+                    <div class="inflow-item" id="inflowPension">Future Pension</div>
+                </div>
+                <div class="inflow-arrow" id="inflowArrow"></div>
+            </div>
+
+            <!-- Taps/Outflows -->
+            <div class="taps-container" id="tapsContainer">
+                <div class="outflow-arrow" id="outflowArrow"></div>
+                <div class="taps-label">Your Expenditure Taps</div>
+                <div class="taps">
+                    <div class="tap tap-1" id="tap1">
+                        <div class="tap-icon">🏠</div>
+                        <div class="tap-label">Current Lifestyle</div>
+                    </div>
+                    <div class="tap tap-2" id="tap2">
+                        <div class="tap-icon">✈️</div>
+                        <div class="tap-label">Active Retirement</div>
+                    </div>
+                    <div class="tap tap-3" id="tap3">
+                        <div class="tap-icon">🌅</div>
+                        <div class="tap-label">Late Retirement</div>
+                    </div>
+                    <div class="tap tap-4" id="tap4">
+                        <div class="tap-icon">💎</div>
+                        <div class="tap-label">One-Off Events</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Client Types -->
+            <div class="client-types" id="clientTypes">
+                <div class="client-type not-enough" id="typeNotEnough">
+                    <div class="client-type-icon">📉</div>
+                    <h3>"Not Enough"</h3>
+                    <p>Bucket runs empty during lifetime</p>
+                </div>
+                <div class="client-type too-much" id="typeTooMuch">
+                    <div class="client-type-icon">📈</div>
+                    <h3>"Too Much"</h3>
+                    <p>Bucket overflows - missed opportunities to live fully</p>
+                </div>
+                <div class="client-type just-right" id="typeJustRight">
+                    <div class="client-type-icon">✨</div>
+                    <h3>"Just Right"</h3>
+                    <p>Have enough but don't realise it</p>
+                </div>
+            </div>
+
+            <!-- Key Insight -->
+            <div class="insight-callout" id="insightCallout">
+                <h2>The Key Question</h2>
+                <p>"What's going to happen to your bucket over your lifetime?"</p>
+            </div>
+        </div>
+
+        <!-- Final Screen -->
+        <div class="final-screen" id="finalScreen">
+            <h2>Clarity Creates Confidence</h2>
+            <p>When you understand your bucket, you can make informed decisions about your lifestyle, your retirement, and your legacy.</p>
+            <p class="final-tagline">"Life is not a rehearsal"</p>
+        </div>
+
+        <!-- Narrator -->
+        <div class="narrator" id="narrator">
+            <p class="narrator-text" id="narratorText"></p>
+        </div>
+    </div>
+
+    <script>
+        // Presentation Script with timings
+        const script = [
+            // Scene 0: Title (0-4s)
+            { time: 0, action: 'title' },
+            { time: 4000, action: 'showCanvas' },
+
+            // Scene 1: Introduce the bucket (4-12s)
+            { time: 4500, action: 'showBucket', narration: "Let me introduce you to <span class='highlight'>The Bucket</span> — a simple way to see your entire financial picture." },
+
+            // Scene 2: Inside the bucket (12-22s)
+            { time: 12000, action: 'showInside', narration: "Inside your bucket is <span class='highlight'>liquid money</span> — cash, savings, ISAs, shares. Anything you can access within 7-10 days. This is YOUR money to spend whenever you like." },
+            { time: 14000, action: 'fillBucket' },
+            { time: 15000, action: 'showAssetCash' },
+            { time: 15500, action: 'showAssetIsa' },
+            { time: 16000, action: 'showAssetShares' },
+            { time: 16500, action: 'showAssetSavings' },
+
+            // Scene 3: Outside the bucket (22-34s)
+            { time: 24000, action: 'showOutside', narration: "Outside your bucket sits everything else — your home, pension funds, business value. This is still your money, but you can't spend it until you convert it to liquid form." },
+            { time: 26000, action: 'showAssetHome' },
+            { time: 26500, action: 'showAssetPension' },
+            { time: 27000, action: 'showAssetBusiness' },
+
+            // Scene 4: Inflows (34-48s)
+            { time: 36000, action: 'showInflows', narration: "Above the bucket are your <span class='highlight'>inflows</span> — current income like salary and dividends, plus future income like your State Pension." },
+            { time: 38000, action: 'showInflowSalary' },
+            { time: 38500, action: 'showInflowDividends' },
+            { time: 39000, action: 'showInflowPension' },
+            { time: 40000, action: 'showInflowArrow' },
+
+            // Scene 5: The Taps (48-70s)
+            { time: 50000, action: 'showTaps', narration: "Below the bucket are the <span class='highlight'>taps</span> — this is where your money flows out. Your current lifestyle, active retirement when you're fit enough to enjoy life most, late retirement, and one-off events like weddings or dream holidays." },
+            { time: 52000, action: 'showOutflowArrow' },
+            { time: 53000, action: 'showTap1' },
+            { time: 54000, action: 'showTap2' },
+            { time: 55000, action: 'showTap3' },
+            { time: 56000, action: 'showTap4' },
+
+            // Scene 6: The Key Question (70-85s)
+            { time: 72000, action: 'hideElements' },
+            { time: 73000, action: 'showInsight', narration: "Once we've agreed what's in your bucket, what's coming in, and what's going out — we can answer the most important question..." },
+
+            // Scene 7: Three Types (85-105s)
+            { time: 87000, action: 'hideInsight' },
+            { time: 88000, action: 'showClientTypes', narration: "There are only three possibilities. You either <span class='highlight'>don't have enough</span>, you have <span class='highlight'>too much</span> and might miss opportunities to live fully, or you're <span class='highlight'>just right</span> but don't realise it yet." },
+            { time: 90000, action: 'showTypeNotEnough' },
+            { time: 91500, action: 'showTypeTooMuch' },
+            { time: 93000, action: 'showTypeJustRight' },
+
+            // Scene 8: Final message (105-120s)
+            { time: 107000, action: 'hideClientTypes' },
+            { time: 108000, action: 'showFinal', narration: "The bucket helps you see where you stand — so you can make decisions with confidence, not anxiety." },
+
+            { time: 118000, action: 'hideNarrator' },
+            { time: 120000, action: 'end' }
+        ];
+
+        let isPlaying = false;
+        let startTime = 0;
+        let animationFrame = null;
+        let currentScriptIndex = 0;
+
+        const elements = {
+            titleScreen: document.getElementById('titleScreen'),
+            canvasArea: document.getElementById('canvasArea'),
+            bucket: document.getElementById('bucket'),
+            bucketLiquid: document.getElementById('bucketLiquid'),
+            labelInside: document.getElementById('labelInside'),
+            labelOutside: document.getElementById('labelOutside'),
+            assetCash: document.getElementById('assetCash'),
+            assetIsa: document.getElementById('assetIsa'),
+            assetShares: document.getElementById('assetShares'),
+            assetSavings: document.getElementById('assetSavings'),
+            assetHome: document.getElementById('assetHome'),
+            assetPension: document.getElementById('assetPension'),
+            assetBusiness: document.getElementById('assetBusiness'),
+            inflowContainer: document.getElementById('inflowContainer'),
+            inflowSalary: document.getElementById('inflowSalary'),
+            inflowDividends: document.getElementById('inflowDividends'),
+            inflowPension: document.getElementById('inflowPension'),
+            inflowArrow: document.getElementById('inflowArrow'),
+            tapsContainer: document.getElementById('tapsContainer'),
+            outflowArrow: document.getElementById('outflowArrow'),
+            tap1: document.getElementById('tap1'),
+            tap2: document.getElementById('tap2'),
+            tap3: document.getElementById('tap3'),
+            tap4: document.getElementById('tap4'),
+            clientTypes: document.getElementById('clientTypes'),
+            typeNotEnough: document.getElementById('typeNotEnough'),
+            typeTooMuch: document.getElementById('typeTooMuch'),
+            typeJustRight: document.getElementById('typeJustRight'),
+            insightCallout: document.getElementById('insightCallout'),
+            finalScreen: document.getElementById('finalScreen'),
+            narrator: document.getElementById('narrator'),
+            narratorText: document.getElementById('narratorText'),
+            progressBar: document.getElementById('progressBar'),
+            timer: document.getElementById('timer'),
+            playBtn: document.getElementById('playBtn'),
+            restartBtn: document.getElementById('restartBtn')
+        };
+
+        const actions = {
+            title: () => elements.titleScreen.classList.add('active'),
+            showCanvas: () => {
+                elements.titleScreen.classList.remove('active');
+                elements.canvasArea.classList.add('active');
+            },
+            showBucket: () => elements.bucket.classList.add('visible'),
+            showInside: () => elements.labelInside.classList.add('visible'),
+            fillBucket: () => elements.bucketLiquid.classList.add('fill'),
+            showAssetCash: () => elements.assetCash.classList.add('visible'),
+            showAssetIsa: () => elements.assetIsa.classList.add('visible'),
+            showAssetShares: () => elements.assetShares.classList.add('visible'),
+            showAssetSavings: () => elements.assetSavings.classList.add('visible'),
+            showOutside: () => elements.labelOutside.classList.add('visible'),
+            showAssetHome: () => elements.assetHome.classList.add('visible'),
+            showAssetPension: () => elements.assetPension.classList.add('visible'),
+            showAssetBusiness: () => elements.assetBusiness.classList.add('visible'),
+            showInflows: () => elements.inflowContainer.classList.add('visible'),
+            showInflowSalary: () => elements.inflowSalary.classList.add('visible'),
+            showInflowDividends: () => elements.inflowDividends.classList.add('visible'),
+            showInflowPension: () => elements.inflowPension.classList.add('visible'),
+            showInflowArrow: () => elements.inflowArrow.classList.add('visible'),
+            showTaps: () => elements.tapsContainer.classList.add('visible'),
+            showOutflowArrow: () => elements.outflowArrow.classList.add('visible'),
+            showTap1: () => elements.tap1.classList.add('visible'),
+            showTap2: () => elements.tap2.classList.add('visible'),
+            showTap3: () => elements.tap3.classList.add('visible'),
+            showTap4: () => elements.tap4.classList.add('visible'),
+            hideElements: () => {
+                ['bucket', 'labelInside', 'labelOutside', 'assetCash', 'assetIsa',
+                 'assetShares', 'assetSavings', 'assetHome', 'assetPension', 'assetBusiness',
+                 'inflowContainer', 'tapsContainer'].forEach(id => {
+                    elements[id].style.opacity = '0';
+                });
+            },
+            showInsight: () => elements.insightCallout.classList.add('visible'),
+            hideInsight: () => elements.insightCallout.classList.remove('visible'),
+            showClientTypes: () => elements.clientTypes.classList.add('visible'),
+            showTypeNotEnough: () => elements.typeNotEnough.classList.add('visible'),
+            showTypeTooMuch: () => elements.typeTooMuch.classList.add('visible'),
+            showTypeJustRight: () => elements.typeJustRight.classList.add('visible'),
+            hideClientTypes: () => {
+                elements.clientTypes.classList.remove('visible');
+                elements.canvasArea.classList.remove('active');
+            },
+            showFinal: () => elements.finalScreen.classList.add('active'),
+            hideNarrator: () => elements.narrator.classList.remove('visible'),
+            end: () => {
+                isPlaying = false;
+                elements.playBtn.textContent = 'Play';
+            }
+        };
+
+        function updateNarration(text) {
+            if (text) {
+                elements.narratorText.innerHTML = text;
+                elements.narrator.classList.add('visible');
+            }
+        }
+
+        function formatTime(ms) {
+            const seconds = Math.floor(ms / 1000);
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function update(timestamp) {
+            if (!isPlaying) return;
+
+            const elapsed = timestamp - startTime;
+            const totalDuration = 120000;
+
+            elements.progressBar.style.width = `${(elapsed / totalDuration) * 100}%`;
+            elements.timer.textContent = formatTime(elapsed);
+
+            while (currentScriptIndex < script.length && script[currentScriptIndex].time <= elapsed) {
+                const item = script[currentScriptIndex];
+                if (actions[item.action]) {
+                    actions[item.action]();
+                }
+                if (item.narration) {
+                    updateNarration(item.narration);
+                }
+                currentScriptIndex++;
+            }
+
+            if (elapsed < totalDuration) {
+                animationFrame = requestAnimationFrame(update);
+            }
+        }
+
+        function reset() {
+            currentScriptIndex = 0;
+            elements.progressBar.style.width = '0%';
+            elements.timer.textContent = '0:00';
+
+            // Reset all elements
+            elements.titleScreen.classList.add('active');
+            elements.canvasArea.classList.remove('active');
+            elements.finalScreen.classList.remove('active');
+            elements.narrator.classList.remove('visible');
+
+            ['bucket', 'labelInside', 'labelOutside'].forEach(id => {
+                elements[id].classList.remove('visible');
+                elements[id].style.opacity = '';
+            });
+
+            elements.bucketLiquid.classList.remove('fill');
+
+            ['assetCash', 'assetIsa', 'assetShares', 'assetSavings',
+             'assetHome', 'assetPension', 'assetBusiness'].forEach(id => {
+                elements[id].classList.remove('visible');
+            });
+
+            elements.inflowContainer.classList.remove('visible');
+            elements.inflowContainer.style.opacity = '';
+            ['inflowSalary', 'inflowDividends', 'inflowPension', 'inflowArrow'].forEach(id => {
+                elements[id].classList.remove('visible');
+            });
+
+            elements.tapsContainer.classList.remove('visible');
+            elements.tapsContainer.style.opacity = '';
+            ['outflowArrow', 'tap1', 'tap2', 'tap3', 'tap4'].forEach(id => {
+                elements[id].classList.remove('visible');
+            });
+
+            elements.insightCallout.classList.remove('visible');
+            elements.clientTypes.classList.remove('visible');
+            ['typeNotEnough', 'typeTooMuch', 'typeJustRight'].forEach(id => {
+                elements[id].classList.remove('visible');
+            });
+        }
+
+        function play() {
+            if (isPlaying) {
+                isPlaying = false;
+                elements.playBtn.textContent = 'Play';
+                cancelAnimationFrame(animationFrame);
+            } else {
+                isPlaying = true;
+                elements.playBtn.textContent = 'Pause';
+                startTime = performance.now();
+                animationFrame = requestAnimationFrame(update);
+            }
+        }
+
+        elements.playBtn.addEventListener('click', play);
+        elements.restartBtn.addEventListener('click', () => {
+            isPlaying = false;
+            cancelAnimationFrame(animationFrame);
+            reset();
+            elements.playBtn.textContent = 'Play';
+        });
+
+        // Initialize
+        reset();
+    </script>
+</body>
+</html>
